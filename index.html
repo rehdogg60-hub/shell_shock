@@ -385,10 +385,6 @@
     function addBallIcons() {
         shells.forEach(shell => {
             if (!shell.querySelector('.ball-icon')) {
-                const iconSpan = document.createElement('span');
-                iconSpan.className = 'ball-icon';
-                iconSpan.innerHTML = '⚾';
-                shell.appendChild(iconSpan);
             }
         });
     }
@@ -420,9 +416,93 @@
     }
 
     function startGame() {
-        if (isShuffling) return;
-        clearTimeout(autoRoundTimer);
-        initAudio();
+
+    if (isShuffling) return;
+    clearTimeout(autoRoundTimer);
+    initAudio();
+
+    hideAllBalls();
+
+    // choose where ball starts
+    ballLocation = Math.floor(Math.random() * 3);
+
+    // reveal to player first
+    shells[ballLocation].classList.add('active');
+
+    gameActive = false;
+
+    messageSpan.innerHTML =
+    "👀 WATCH THE BALL CAREFULLY 👀";
+
+    messageSpan.style.color = "#7ffbff";
+
+    // give player time to see it
+    setTimeout(()=>{
+
+        hideAllBalls();
+
+        messageSpan.innerHTML =
+        "🌀 SHUFFLING... FOLLOW THE CUP 🌀";
+
+        animateRealShuffle(()=>{
+
+            gameActive = true;
+
+            messageSpan.innerHTML =
+            "🎯 PICK THE CUP 🎯";
+
+            messageSpan.style.color =
+            "#ffd966";
+
+        });
+
+    },1800);
+        function animateRealShuffle(callback){
+
+    isShuffling=true;
+
+    let moves=8;
+    let count=0;
+
+    let interval=setInterval(()=>{
+
+        playShuffle();
+
+        let a=Math.floor(Math.random()*3);
+        let b=Math.floor(Math.random()*3);
+
+        while(a===b){
+            b=Math.floor(Math.random()*3);
+        }
+
+        // swap ball with shell
+        if(ballLocation===a){
+            ballLocation=b;
+        }
+        else if(ballLocation===b){
+            ballLocation=a;
+        }
+
+        shells[a].style.order=b;
+        shells[b].style.order=a;
+
+        count++;
+
+        if(count>=moves){
+
+            clearInterval(interval);
+
+            isShuffling=false;
+
+            callback();
+
+        }
+
+    },400);
+
+}
+
+}
 
         hideAllBalls();
         ballLocation = Math.floor(Math.random() * shells.length);
